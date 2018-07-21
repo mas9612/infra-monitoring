@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-mysql
+  namespace: monitoring
+  labels:
+    app: mysql
+    env: test
+spec:
+  ports:
+  - port: 3306
+    name: mysql-port
+  clusterIP: None
+  selector:
+    app: mysql
+    env: test
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-mysql-pv
+  labels:
+    volume: grafana-mysql
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 8Gi
+  nfs:
+    path: /export/grafana-mysql-test
+    server: 10.1.240.80
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: monitoring
+  labels:
+    app: mysql
+    env: test
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+      env: test
+  serviceName: grafana-mysql
+  template:
+    metadata:
+      name: mysql
+      namespace: monitoring
+      labels:
+        app: mysql
+        env: test
+    spec:
+      containers:
+        - name: mysql
+          env:
+            - name: MYSQL_DATABASE
+              value: grafana
+            - name: MYSQL_USER
+              value: grafana
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-user-pass
+                  optional: false
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-root-pass
+                  optional: false
+          image: mysql/mysql-server:5.7
+          ports:
+            - name: mysql-port
+              containerPort: 3306
+          volumeMounts:
+            - name: mysql-volume
+              mountPath: /var/lib/mysql
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-volume
+        namespace: monitoring
+        labels:
+          app: mysql
+          env: test
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 8Gi
+        selector:
+          matchLabels:
+            volume: grafana-mysql
