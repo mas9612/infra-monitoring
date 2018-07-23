@@ -73,6 +73,23 @@ spec:
 
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: alert-storage
+  labels:
+    volume: alert-storage
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 8Gi
+  nfs:
+    path: /export/alert-storage
+    server: 10.1.240.80
+
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prom-storage
@@ -89,6 +106,25 @@ spec:
   selector:
     matchLabels:
       volume: prom-storage
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alert-storage
+  labels:
+    app: prometheus
+    env: test
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 8Gi
+  selector:
+    matchLabels:
+      volume: alert-storage
 
 ---
 apiVersion: apps/v1beta1
@@ -173,14 +209,17 @@ spec:
             - name: alert-config
               mountPath: /etc/alertmanager/alertmanager.yml
               subPath: alertmanager.yml
-          # livenessProbe
-          # readinessProbe:
+            - name: alert-storage
+              mountPath: /alertmanager
           # initContainers:
       volumes:
         - name: alert-config
           secret:
             secretName: alert-secret
             optional: false
+        - name: alert-storage
+          persistentVolumeClaim:
+            claimName: alert-storage
 
 ---
 apiVersion: extensions/v1beta1
