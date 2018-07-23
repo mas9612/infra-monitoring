@@ -211,6 +211,16 @@ spec:
               subPath: alertmanager.yml
             - name: alert-storage
               mountPath: /alertmanager
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: /-/healthy
+              port: 9093
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: /-/ready
+              port: 9093
           # initContainers:
       volumes:
         - name: alert-config
