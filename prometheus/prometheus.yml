@@ -98,6 +98,8 @@ metadata:
   namespace: monitoring
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   template:
     metadata:
       namespace: monitoring
@@ -125,8 +127,16 @@ spec:
               subPath: prometheus.yml
             - name: prom-storage
               mountPath: /prometheus
-          # livenessProbe
-          # readinessProbe:
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: /graph
+              port: 9090
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: /graph
+              port: 9090
           # initContainers:
       volumes:
         - name: prom-config
