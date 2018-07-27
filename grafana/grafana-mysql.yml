@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
   labels:
     app: mysql
-    env: test
+    env: prod
 spec:
   ports:
   - port: 3306
@@ -13,7 +13,7 @@ spec:
   clusterIP: None
   selector:
     app: mysql
-    env: test
+    env: prod
 
 ---
 apiVersion: v1
@@ -29,7 +29,7 @@ spec:
   capacity:
     storage: 8Gi
   nfs:
-    path: /export/grafana-mysql-test
+    path: /export/grafana-mysql
     server: 10.1.240.80
 
 ---
@@ -40,12 +40,12 @@ metadata:
   namespace: monitoring
   labels:
     app: mysql
-    env: test
+    env: prod
 spec:
   selector:
     matchLabels:
       app: mysql
-      env: test
+      env: prod
   serviceName: grafana-mysql
   template:
     metadata:
@@ -53,7 +53,7 @@ spec:
       namespace: monitoring
       labels:
         app: mysql
-        env: test
+        env: prod
     spec:
       containers:
         - name: mysql
@@ -93,7 +93,7 @@ spec:
         namespace: monitoring
         labels:
           app: mysql
-          env: test
+          env: prod
       spec:
         accessModes:
           - ReadWriteMany

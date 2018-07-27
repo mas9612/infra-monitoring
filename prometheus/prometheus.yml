@@ -10,7 +10,7 @@ spec:
       targetPort: prom-port
   selector:
     app: prometheus
-    env: test
+    env: prod
 
 ---
 apiVersion: v1
@@ -25,7 +25,7 @@ spec:
       targetPort: alert-port
   selector:
     app: alertmanager
-    env: test
+    env: prod
 
 ---
 apiVersion: v1
@@ -95,7 +95,7 @@ metadata:
   name: prom-storage
   labels:
     app: prometheus
-    env: test
+    env: prod
   namespace: monitoring
 spec:
   accessModes:
@@ -114,7 +114,7 @@ metadata:
   name: alert-storage
   labels:
     app: prometheus
-    env: test
+    env: prod
   namespace: monitoring
 spec:
   accessModes:
@@ -141,7 +141,7 @@ spec:
       namespace: monitoring
       labels:
         app: prometheus
-        env: test
+        env: prod
     spec:
       containers:
         - name: prometheus
@@ -195,7 +195,7 @@ spec:
       namespace: monitoring
       labels:
         app: alertmanager
-        env: test
+        env: prod
     spec:
       containers:
         - name: alertmanager

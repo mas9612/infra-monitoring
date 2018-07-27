@@ -11,7 +11,7 @@ spec:
       targetPort: grafana-port
   selector:
     app: grafana
-    env: test
+    env: prod
 
 ---
 apiVersion: v1
@@ -37,7 +37,7 @@ metadata:
   name: grafana-storage
   labels:
     app: grafana
-    env: test
+    env: prod
   namespace: monitoring
 spec:
   accessModes:
@@ -62,7 +62,7 @@ spec:
       namespace: monitoring
       labels:
         app: grafana
-        env: test
+        env: prod
     spec:
       containers:
         - name: grafana
